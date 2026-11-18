@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Direito de Entender — Protótipo ACESSUS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'DM Sans',system-ui,sans-serif;
+  background:#F4F7F0;
+  color:#1A2E0A;
+  min-height:100vh;
+}
+
+/* ═══════ HEADER ═══════ */
+.header {
+  background:linear-gradient(135deg,#1B5E20,#2E7D32 60%,#388E3C);
+  padding:18px 28px;
+  display:flex; align-items:center; gap:16px;
+  box-shadow:0 3px 12px rgba(0,0,0,0.18);
+  flex-wrap:wrap;
+}
+.header-text h1 {
+  font-family:'Space Grotesk',sans-serif;
+  font-size:24px; font-weight:700; color:#fff;
+  letter-spacing:0.3px;
+}
+.header-text .sub {
+  font-size:13px; color:rgba(255,255,255,0.7);
+  font-style:italic;
+}
+.header-right {
+  margin-left:auto; display:flex; gap:10px; align-items:center;
+}
+.offline-badge {
+  background:rgba(255,255,255,0.12);
+  border:1.5px solid rgba(255,255,255,0.3);
+  border-radius:24px; padding:6px 16px;
+  font-size:12px; color:#AED581; font-weight:600;
+  display:flex; align-items:center; gap:6px;
+  backdrop-filter:blur(4px);
+}
+.badge-dot {
+  width:8px; height:8px; border-radius:50%;
+  background:#AED581;
+  box-shadow:0 0 6px #AED581;
+  animation:pulse 2s infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity:1; }
+  50% { opacity:0.4; }
+}
+
+/* ═══════ DOC SELECTOR ═══════ */
+.doc-selector {
+  background:#fff;
+  padding:14px 28px;
+  border-bottom:2px solid #E8EFE0;
+  display:flex; gap:10px; align-items:center;
+  flex-wrap:wrap;
+}
+.doc-selector label {
+  font-family:'Space Grotesk',sans-serif;
+  font-size:13px; font-weight:600; color:#1B5E20;
+  text-transform:uppercase; letter-spacing:0.5px;
+}
+.doc-btn {
+  padding:8px 16px;
+  font-family:'DM Sans',sans-serif;
+  font-size:13px; font-weight:500;
+  color:#555; cursor:pointer;
+  border:1.5px solid #ddd; background:#FAFDF7;
+  border-radius:10px;
+  transition:all 0.25s;
+  display:flex; align-items:center; gap:6px;
+}
+.doc-btn.active {
+  color:#fff; background:linear-gradient(135deg,#2E7D32,#388E3C);
+  border-color:#2E7D32; font-weight:600;
+  box-shadow:0 2px 8px rgba(46,125,50,0.25);
+}
+.doc-btn:hover:not(.active) { border-color:#66BB6A; color:#2E7D32; background:#F1F8E9; }
+.doc-tag {
+  font-size:10px; background:rgba(255,255,255,0.3);
+  padding:2px 6px; border-radius:4px; font-weight:700;
+}
+.doc-btn.active .doc-tag { background:rgba(255,255,255,0.25); }
+.doc-btn:not(.active) .doc-tag { background:#E8EFE0; color:#2E7D32; }
+
+/* ═══════ TABS ═══════ */
+.tabs {
+  display:flex; background:#fff;
+  border-bottom:2px solid #E8EFE0;
+  padding:0 28px;
+  box-shadow:0 1px 4px rgba(0,0,0,0.04);
+}
+.tab {
+  padding:14px 28px;
+  font-family:'Space Grotesk',sans-serif;
+  font-size:14px; font-weight:500;
+  color:#888; cursor:pointer;
+  border:none; background:none;
+  border-bottom:3px solid transparent;
+  margin-bottom:-2px;
+  transition:all 0.25s;
+  display:flex; align-items:center; gap:8px;
+}
+.tab.active {
+  color:#2E7D32; border-bottom-color:#2E7D32; font-weight:700;
+}
+.tab:hover:not(.active) { color:#555; background:rgba(46,125,50,0.04); }
+.tab .icon { font-size:16px; }
+
+/* ═══════ CONTENT ═══════ */
+.content { max-width:980px; margin:0 auto; padding:24px 28px 32px; }
+.tab-panel { display:none; }
+.tab-panel.active { display:block; }
+
+/* ─── ORIGINAL ─── */
+.doc-original {
+  background:#fff; border-radius:14px;
+  padding:28px 32px; box-shadow:0 2px 10px rgba(0,0,0,0.06);
+  font-size:14px; line-height:1.7; color:#444;
+  border-left:5px solid #C62828;
+  max-height:520px; overflow-y:auto;
+}
+.doc-original .doc-title {
+  font-family:'Space Grotesk',sans-serif;
+  font-size:17px; font-weight:700; color:#C62828;
+  margin-bottom:14px; padding-bottom:10px;
+  border-bottom:1px solid #f0f0f0;
+}
+.doc-original .art { margin-top:12px; }
+.doc-original .art-num { font-weight:700; color:#1A2E0A; }
+
+/* ─── LINGUAGEM SIMPLES ─── */
+.doc-ls {
+  background:#fff; border-radius:14px;
+  padding:28px 32px; box-shadow:0 2px 10px rgba(0,0,0,0.06);
+  border-left:5px solid #2E7D32;
+  font-size:15px; line-height:1.75;
+  max-height:520px; overflow-y:auto;
+}
+.doc-ls h3 {
+  font-family:'Space Grotesk',sans-serif;
+  font-size:17px; font-weight:600; color:#2E7D32;
+  margin:18px 0 8px; display:flex; align-items:center; gap:8px;
+}
+.doc-ls h3:first-child { margin-top:0; }
+.doc-ls .hl {
+  background:linear-gradient(120deg,#E8F5E9 0%,#C8E6C9 100%);
+  padding:2px 10px; border-radius:6px; font-weight:600;
+  color:#1B5E20;
+}
+.doc-ls .box {
+  background:#F9FDF6; border:1px solid #E8EFE0;
+  border-radius:10px; padding:14px 18px; margin:10px 0;
+}
+.doc-ls .box li { margin-bottom:5px; list-style:none; padding-left:18px; position:relative; }
+.doc-ls .box li::before { content:'✅'; position:absolute; left:0; }
+
+/* ─── VÍDEO NAVEGÁVEL ─── */
+.vn-layout {
+  display:grid; grid-template-columns:1.4fr 1fr; gap:18px;
+}
+@media(max-width:700px) { .vn-layout { grid-template-columns:1fr; } }
+
+.video-area {
+  background:#0D1A08; border-radius:14px; overflow:hidden;
+  box-shadow:0 4px 16px rgba(0,0,0,0.2);
+}
+.video-screen {
+  padding:36px 28px; text-align:center; color:#fff;
+  min-height:240px; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:14px;
+  background:radial-gradient(ellipse at center,#1B3A0D 0%,#0D1A08 70%);
+  position:relative;
+}
+.video-screen .play-circle {
+  width:64px; height:64px; border-radius:50%;
+  background:rgba(46,125,50,0.85); border:3px solid rgba(255,255,255,0.3);
+  display:flex; align-items:center; justify-content:center;
+  font-size:24px; cursor:pointer; transition:transform 0.2s;
+  box-shadow:0 4px 20px rgba(46,125,50,0.4);
+}
+.play-circle:hover { transform:scale(1.1); }
+.video-screen .big-title {
+  font-family:'Space Grotesk',sans-serif;
+  font-size:22px; font-weight:700; line-height:1.3;
+}
+.video-screen .vid-sub {
+  font-size:14px; color:rgba(255,255,255,0.75); max-width:85%;
+  line-height:1.55;
+}
+.video-controls {
+  display:flex; align-items:center; gap:12px;
+  padding:12px 18px; background:#070E04;
+}
+.ctrl-btn {
+  width:30px; height:30px; border-radius:50%;
+  background:transparent; border:none; color:rgba(255,255,255,0.8);
+  font-size:14px; cursor:pointer; display:flex;
+  align-items:center; justify-content:center;
+}
+.ctrl-btn:hover { color:#AED581; }
+.progress-track {
+  flex:1; height:5px; background:rgba(255,255,255,0.15);
+  border-radius:3px; position:relative; cursor:pointer;
+}
+.progress-played {
+  height:100%; background:linear-gradient(90deg,#66BB6A,#AED581);
+  border-radius:3px; width:0%; transition:width 0.3s;
+}
+.progress-dot {
+  position:absolute; top:50%; right:-1px; transform:translate(50%,-50%);
+  width:12px; height:12px; border-radius:50%;
+  background:#AED581; border:2px solid #0D1A08;
+  box-shadow:0 0 6px rgba(174,213,129,0.5);
+}
+.time-label {
+  font-size:11px; color:rgba(255,255,255,0.5);
+  font-family:'Space Grotesk',sans-serif;
+  flex-shrink:0;
+}
+.narr-badge {
+  font-size:12px; color:#AED581; background:rgba(174,213,129,0.15);
+  border:1px solid rgba(174,213,129,0.3); border-radius:16px;
+  padding:4px 14px; margin-top:4px; display:none;
+  animation:pulse 2s infinite;
+}
+.narr-badge.active { display:inline-block; }
+
+.chapters {
+  display:flex; flex-direction:column; gap:8px;
+}
+.chapters h3 {
+  font-family:'Space Grotesk',sans-serif;
+  font-size:15px; font-weight:600; color:#1A2E0A;
+  margin-bottom:6px;
+}
+.ch-item {
+  display:flex; align-items:center; gap:12px;
+  padding:12px 14px; background:#fff;
+  border-radius:10px; border:1px solid #E8EFE0;
+  cursor:pointer; transition:all 0.2s;
+}
+.ch-item:hover { border-color:#66BB6A; }
+.ch-item.active {
+  border-color:#2E7D32; background:#F1F8E9;
+  box-shadow:0 0 0 2px rgba(46,125,50,0.12);
+}
+.ch-icon {
+  width:34px; height:34px; border-radius:8px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:16px; flex-shrink:0;
+}
+.ch-1 { background:#E8F5E9; }
+.ch-2 { background:#FFF3E0; }
+.ch-3 { background:#E3F2FD; }
+.ch-4 { background:#FCE4EC; }
+.ch-info { flex:1; min-width:0; }
+.ch-title { font-size:13px; font-weight:600; color:#1A2E0A; }
+.ch-dur { font-size:11px; color:#888; margin-top:2px; }
+.ch-time {
+  font-size:11px; color:#888;
+  font-family:'Space Grotesk',sans-serif;
+}
+
+/* ═══════ QUESTIONÁRIO ═══════ */
+.quiz-section {
+  margin-top:24px; background:#fff; border-radius:14px;
+  padding:24px 28px; box-shadow:0 2px 10px rgba(0,0,0,0.06);
+}
+.quiz-section h3 {
+  font-family:'Space Grotesk',sans-serif;
+  font-size:17px; font-weight:600; color:#1A2E0A;
+  margin-bottom:16px;
+  padding-bottom:12px; border-bottom:1px solid #f0f0f0;
+}
+.quiz-grid {
+  display:grid; grid-template-columns:1fr 1fr; gap:18px;
+}
+@media(max-width:600px) { .quiz-grid { grid-template-columns:1fr; } }
+
+.question {
+  padding:16px 18px; background:#FAFDF7;
+  border-radius:12px; border:1px solid #E8EFE0;
+}
+.question .q-num {
+  font-size:11px; font-weight:700; color:#2E7D32;
+  text-transform:uppercase; letter-spacing:0.5px;
+  margin-bottom:6px;
+}
+.question .q-text {
+  font-size:14px; font-weight:500; margin-bottom:10px; line-height:1.45;
+  color:#1A2E0A;
+}
+.option {
+  display:flex; align-items:center; gap:10px;
+  padding:8px 12px; border-radius:8px; cursor:pointer;
+  font-size:13px; color:#555;
+  transition:background 0.15s;
+  margin-bottom:4px;
+}
+.option:hover { background:#E8F5E9; }
+.option .radio {
+  width:16px; height:16px; border-radius:50%;
+  border:2px solid #ccc; flex-shrink:0;
+  transition:all 0.15s;
+}
+.option.selected .radio {
+  border-color:#2E7D32; background:#2E7D32;
+  box-shadow:inset 0 0 0 3px #fff;
+}
+.option.correct { background:#C8E6C9; }
+.option.correct .radio { border-color:#1B5E20; background:#1B5E20; box-shadow:inset 0 0 0 3px #fff; }
+.option.wrong { background:#FFCDD2; }
+.option.wrong .radio { border-color:#C62828; background:#C62828; box-shadow:inset 0 0 0 3px #fff; }
+
+/* ═══════ FOOTER / PERFORMANCE ═══════ */
+.quiz-footer {
+  display:flex; align-items:center; gap:16px; margin-top:18px;
+  flex-wrap:wrap;
+}
+.btn-quiz {
+  font-family:'Space Grotesk',sans-serif;
+  background:linear-gradient(135deg,#2E7D32,#388E3C);
+  color:#fff; border:none; border-radius:10px;
+  padding:12px 28px; font-size:14px; font-weight:600;
+  cursor:pointer; box-shadow:0 3px 10px rgba(46,125,50,0.25);
+  transition:transform 0.15s;
+}
+.btn-quiz:hover { transform:translateY(-1px); }
+.perf-panel {
+  display:inline-flex; align-items:center; gap:18px;
+  background:#F1F8E9; border:1px solid #C8E6C9;
+  border-radius:12px; padding:10px 20px;
+}
+.perf-item { text-align:center; }
+.perf-icon { font-size:18px; }
+.perf-val {
+  font-family:'Space Grotesk',sans-serif;
+  font-size:18px; font-weight:700; color:#1B5E20;
+}
+.perf-lbl { font-size:11px; color:#888; }
+.perf-divider { width:1px; height:36px; background:#C8E6C9; }
+
+/* ═══════ PAGE FOOTER ═══════ */
+.page-footer {
+  text-align:center; padding:24px; font-size:12px; color:#888;
+}
+.slogan {
+  font-family:'Space Grotesk',sans-serif;
+  font-size:14px; font-weight:600; color:#2E7D32;
+  font-style:italic;
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<div class="header">
+  <div class="header-text">
+    <h1>ACESSUS</h1>
+    <div class="sub">Direito de Entender — Protótipo Fase I</div>
+  </div>
+  <div class="header-right">
+    <div class="offline-badge">
+      <div class="badge-dot"></div>
+      Offline · Narração por voz
+    </div>
+  </div>
+</div>
+
+<!-- ═══ DOC SELECTOR ═══ -->
+<div class="doc-selector">
+  <label>📄 Documento:</label>
+  <button class="doc-btn active" onclick="switchDoc(0)">
+    <span class="doc-tag">D1</span> Decreto 4.068/2026 — Educação
+  </button>
+  <button class="doc-btn" onclick="switchDoc(1)">
+    <span class="doc-tag">D2</span> Lei 2.503/2026 — Segurança
+  </button>
+  <button class="doc-btn" onclick="switchDoc(2)">
+    <span class="doc-tag">D3</span> LC 121/2025 — Finanças
+  </button>
+</div>
+
+<!-- ═══ TABS (OR / LS / VN) ═══ -->
+<div class="tabs">
+  <button class="tab active" onclick="showTab('original')">
+    <span class="icon">📜</span> Original
+  </button>
+  <button class="tab" onclick="showTab('ls')">
+    <span class="icon">💡</span> Linguagem Simples
+  </button>
+  <button class="tab" onclick="showTab('vn')">
+    <span class="icon">🎬</span> Vídeo Navegável
+  </button>
+</div>
+
+<!-- ═══ MAIN CONTENT ═══ -->
+<div class="content">
+  <!-- ORIGINAL panel -->
+  <div class="tab-panel active" id="panel-original">
+    <div class="doc-original" id="doc-original-content"></div>
+  </div>
+
+  <!-- LINGUAGEM SIMPLES panel -->
+  <div class="tab-panel" id="panel-ls">
+    <div class="doc-ls" id="doc-ls-content"></div>
+  </div>
+
+  <!-- VÍDEO NAVEGÁVEL panel -->
+  <div class="tab-panel" id="panel-vn">
+    <div class="vn-layout">
+      <div>
+        <div class="video-area">
+          <div class="video-screen">
+            <div class="narr-badge" id="narr-badge">🎙️ Narrando…</div>
+            <div class="play-circle" onclick="vnToggle()">▶</div>
+            <div class="big-title" id="vid-title"></div>
+            <div class="vid-sub" id="vid-sub"></div>
+          </div>
+          <div class="video-controls">
+            <button class="ctrl-btn" onclick="vnToggle()" id="vn-play">▶</button>
+            <div class="progress-track" onclick="vnSeek(event)">
+              <div class="progress-played" id="vn-progress">
+                <div class="progress-dot"></div>
+              </div>
+            </div>
+            <span class="time-label" id="vn-time">0:00 / 0:00</span>
+            <button class="ctrl-btn" onclick="toggleMute()" id="vol-btn" title="Volume">🔊</button>
+          </div>
+        </div>
+      </div>
+      <div class="chapters" id="chapters-list">
+        <h3>📌 Capítulos do vídeo</h3>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ QUESTIONÁRIO ═══ -->
+  <div class="quiz-section">
+    <h3>📝 Questionário de compreensão</h3>
+    <div class="quiz-grid" id="quiz-grid"></div>
+    <div class="quiz-footer">
+      <button class="btn-quiz" onclick="checkQuiz()">✅ Ver resultado</button>
+      <div class="perf-panel" id="perf-panel" style="display:none;">
+        <div class="perf-item">
+          <div class="perf-icon">⏱️</div>
+          <div class="perf-val" id="perf-time">--</div>
+          <div class="perf-lbl">Tempo</div>
+        </div>
+        <div class="perf-divider"></div>
+        <div class="perf-item">
+          <div class="perf-icon">✅</div>
+          <div class="perf-val" id="perf-score">--</div>
+          <div class="perf-lbl">Acertos</div>
+        </div>
+        <div class="perf-divider"></div>
+        <div class="perf-item">
+          <div class="perf-icon">📖</div>
+          <div class="perf-val" id="perf-fmt">--</div>
+          <div class="perf-lbl">Formato</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page footer -->
+  <div class="page-footer">
+    <div class="slogan">"Onde a lei fala a sua língua"</div>
+    <div style="margin-top:4px;">ACESSUS — Protótipo Fase I · Direito de Entender · 2026</div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// DADOS DOS 3 DOCUMENTOS REAIS
+// ═══════════════════════════════════════
+
+const DOCS = [
+  // ─── D1: Decreto 4.068/2026 — Educação / Alfabetização ───
+  {
+    id: "D1",
+    label: "Decreto 4.068/2026",
+    tema: "Educação",
+    originalTitle: "DECRETO Nº 4.068, DE 14 DE OUTUBRO DE 2026",
+    originalHTML: `
+      <p>"Institui e regulamenta o Comitê Estratégico da Política Municipal de Alfabetização no âmbito da Rede Pública Municipal de Ensino de Capela do Alto."</p>
+      <p class="art"><span class="art-num">HENRIQUE DANIEL LEME</span>, Prefeito Municipal de Capela do Alto, Estado de São Paulo, no uso das atribuições legais que lhe são conferidas por lei, e considerando a necessidade de articulação das ações voltadas à alfabetização na idade certa;</p>
+      <p class="art"><strong>CAPÍTULO I — DA INSTITUIÇÃO E DAS FINALIDADES</strong></p>
+      <p class="art"><span class="art-num">Art. 1º</span> Fica instituído o Comitê Estratégico da Política Municipal de Alfabetização — CEPMA, no âmbito da Rede Pública Municipal de Ensino de Capela do Alto, vinculado à Secretaria Municipal de Educação, com a finalidade de articular, monitorar e avaliar as ações e programas voltados à alfabetização plena de todas as crianças matriculadas na rede pública municipal.</p>
+      <p class="art"><span class="art-num">Art. 2º</span> O CEPMA tem as seguintes finalidades: assessorar na elaboração, implementação e avaliação da Política Municipal de Alfabetização; promover a articulação entre os diversos setores e níveis da administração municipal; monitorar indicadores de desempenho em alfabetização; e propor ações de melhoria contínua.</p>
+      <p class="art"><strong>CAPÍTULO II — DAS COMPETÊNCIAS</strong></p>
+      <p class="art"><span class="art-num">Art. 3º</span> São competências do CEPMA, entre outras: elaborar o Plano Municipal de Alfabetização; estabelecer metas e indicadores; propor programas de formação continuada para docentes; promover parcerias com universidades e instituições de pesquisa; acompanhar a execução orçamentária das ações de alfabetização; e realizar diagnósticos periódicos do nível de alfabetização dos estudantes da rede municipal.</p>
+      <p class="art"><strong>CAPÍTULO III — DA COMPOSIÇÃO</strong></p>
+      <p class="art"><span class="art-num">Art. 4º</span> O CEPMA será composto por 12 membros, incluindo representantes da Secretaria de Educação, diretores de escolas municipais, coordenadores pedagógicos, professores alfabetizadores, representantes do Conselho Municipal de Educação, pais de alunos e representantes de universidades parceiras.</p>
+      <p class="art"><span class="art-num">Art. 5º</span> Os membros serão nomeados por ato do Chefe do Poder Executivo, com mandato de 2 anos, permitida uma recondução.</p>
+      <p class="art"><strong>CAPÍTULO IV — DA ORGANIZAÇÃO E FUNCIONAMENTO</strong></p>
+      <p class="art"><span class="art-num">Art. 6º</span> O CEPMA se reunirá ordinariamente uma vez por mês e extraordinariamente quando convocado pelo Presidente ou por maioria simples de seus membros.</p>
+      <p class="art"><strong>CAPÍTULO V — DA ARTICULAÇÃO COM A SECRETARIA</strong></p>
+      <p class="art"><span class="art-num">Art. 7º</span> ao <span class="art-num">Art. 11.</span> Estabelecem a articulação do Comitê com a Secretaria Municipal de Educação, incluindo apoio logístico, técnico e administrativo, bem como a integração com o sistema de avaliação municipal.</p>
+      <p class="art"><strong>CAPÍTULO VI — DO PLANO DE TRABALHO E MONITORAMENTO</strong></p>
+      <p class="art"><span class="art-num">Art. 12</span> ao <span class="art-num">Art. 15.</span> O CEPMA elaborará, no prazo de 90 dias a partir de sua instalação, o Plano Municipal de Alfabetização, contendo diagnóstico, metas, cronograma de ações, e mecanismos de monitoramento e avaliação.</p>
+      <p class="art"><strong>CAPÍTULO VII — DISPOSIÇÕES FINAIS</strong></p>
+      <p class="art"><span class="art-num">Art. 16.</span> As despesas decorrentes da execução deste Decreto correrão por conta das dotações orçamentárias próprias.</p>
+      <p class="art"><span class="art-num">Art. 17.</span> Este Decreto entra em vigor na data de sua publicação.</p>
+      <p style="margin-top:18px;font-style:italic;color:#888;">Prefeitura Municipal de Capela do Alto, em 14 de outubro de 2026.<br>HENRIQUE DANIEL LEME — Prefeito Municipal</p>
+    `,
+    lsHTML: `
+      <h3>📋 O que é este documento?</h3>
+      <p>Este é o <span class="hl">Decreto 4.068/2026</span> de Capela do Alto. Ele cria o <strong>Comitê Estratégico da Política Municipal de Alfabetização</strong> (CEPMA), um grupo de pessoas que vai cuidar para que todas as crianças das escolas públicas da cidade aprendam a ler e escrever na idade certa.</p>
+
+      <h3>👥 Quem faz parte do Comitê?</h3>
+      <p>O Comitê tem <strong>12 membros</strong>, incluindo:</p>
+      <div class="box"><ul>
+        <li>Representantes da Secretaria de Educação</li>
+        <li>Diretores e coordenadores de escolas</li>
+        <li>Professores que ensinam a ler e escrever</li>
+        <li>Representantes dos pais de alunos</li>
+        <li>Membros do Conselho Municipal de Educação</li>
+        <li>Representantes de universidades parceiras</li>
+      </ul></div>
+
+      <h3>📐 O que o Comitê faz?</h3>
+      <p>O CEPMA tem várias funções importantes:</p>
+      <div class="box"><ul>
+        <li>Criar o Plano Municipal de Alfabetização</li>
+        <li>Definir metas e acompanhar resultados</li>
+        <li>Organizar formação para professores</li>
+        <li>Fazer parcerias com universidades</li>
+        <li>Verificar como o dinheiro está sendo usado</li>
+        <li>Fazer avaliações periódicas dos alunos</li>
+      </ul></div>
+
+      <h3>⏰ Prazos e funcionamento</h3>
+      <p>Os membros ficam no cargo por <strong>2 anos</strong> e podem ser reconduzidos uma vez. O Comitê se reúne <strong>uma vez por mês</strong>, ou mais se necessário. Em até <strong>90 dias</strong> após começar a funcionar, o Comitê deve apresentar o Plano Municipal de Alfabetização.</p>
+
+      <h3>📍 Onde procurar informações?</h3>
+      <p>Procure a <strong>Secretaria Municipal de Educação</strong> de Capela do Alto. O decreto foi assinado pelo Prefeito Henrique Daniel Leme em 14 de outubro de 2026.</p>
+    `,
+    vnChapters: [
+      {
+        title:"O que é o CEPMA?",
+        text:"Comitê que cuida da alfabetização das crianças nas escolas públicas de Capela do Alto.",
+        narration:"Este é o Decreto número 4.068, de 2026, do município de Capela do Alto. Ele cria o Comitê Estratégico da Política Municipal de Alfabetização, o C.E.P.M.A. Esse comitê foi criado para garantir que todas as crianças das escolas públicas da cidade aprendam a ler e escrever na idade certa. Ele é vinculado à Secretaria Municipal de Educação.",
+        dur:32, icon:"📋", bg:"ch-1"
+      },
+      {
+        title:"Quem participa?",
+        text:"12 membros: secretaria de educação, diretores, professores, pais e universidades.",
+        narration:"O Comitê é formado por 12 membros. Fazem parte representantes da Secretaria de Educação, diretores de escolas, coordenadores pedagógicos, professores alfabetizadores, pais de alunos, membros do Conselho Municipal de Educação e representantes de universidades parceiras. Cada membro fica no cargo por 2 anos, podendo ser reconduzido uma vez.",
+        dur:30, icon:"👥", bg:"ch-2"
+      },
+      {
+        title:"O que o Comitê faz?",
+        text:"Cria metas, acompanha resultados, organiza formação de professores e faz parcerias.",
+        narration:"O C.E.P.M.A. tem diversas competências importantes. Ele deve elaborar o Plano Municipal de Alfabetização, definir metas e indicadores de desempenho, propor programas de formação continuada para os professores, firmar parcerias com universidades e instituições de pesquisa, acompanhar o uso dos recursos, e fazer avaliações periódicas do nível de alfabetização dos estudantes.",
+        dur:35, icon:"📐", bg:"ch-3"
+      },
+      {
+        title:"Prazos e regras",
+        text:"Reunião mensal. Plano de Alfabetização em 90 dias. Apoio da Secretaria de Educação.",
+        narration:"O Comitê se reúne uma vez por mês, e pode ter reuniões extras quando necessário. Em até 90 dias após sua instalação, ele precisa apresentar o Plano Municipal de Alfabetização, que deve conter um diagnóstico da situação, metas claras, um cronograma de ações, e formas de acompanhar os resultados. A Secretaria de Educação fornece todo o apoio logístico e administrativo.",
+        dur:34, icon:"📍", bg:"ch-4"
+      }
+    ],
+    questions: [
+      { q:"Qual é o tema principal do Decreto 4.068/2026?", opts:["Segurança pública","Parcelamento de dívidas","Alfabetização nas escolas municipais"], correct:2 },
+      { q:"Quantos membros tem o CEPMA?", opts:["6 membros","12 membros","20 membros"], correct:1 },
+      { q:"Qual o prazo para o Comitê apresentar o Plano de Alfabetização?", opts:["30 dias","60 dias","90 dias"], correct:2 },
+      { q:"Com que frequência o CEPMA se reúne ordinariamente?", opts:["Semanalmente","Uma vez por mês","A cada 3 meses"], correct:1 },
+      { q:"Quanto tempo dura o mandato dos membros do Comitê?", opts:["1 ano","2 anos","4 anos"], correct:1 },
+      { q:"A quem o CEPMA é vinculado?", opts:["Câmara Municipal","Secretaria Municipal de Educação","Ministério da Educação"], correct:1 }
+    ]
+  },
+
+  // ─── D2: Lei 2.503/2026 — Segurança / Patrulha Maria da Penha ───
+  {
+    id: "D2",
+    label: "Lei 2.503/2026",
+    tema: "Segurança",
+    originalTitle: "LEI Nº 2.503, DE 08 DE SETEMBRO DE 2026",
+    originalHTML: `
+      <p>"Dispõe sobre a criação do 'Programa Municipal Patrulha Maria da Penha', institui a divulgação permanente de suas ações de prevenção e combate à violência contra a mulher no Município de Capela do Alto, e dá outras providências."</p>
+      <p class="art"><span class="art-num">FELIPE SIMÕES DE ALMEIDA</span>, Presidente da Câmara Municipal de Capela do Alto, no uso das atribuições legais que lhe são conferidas por Lei, FAZ SABER que o Plenário APROVOU e, tendo em vista a ausência de sanção pelo Chefe do Poder Executivo no prazo legal, SANCIONA e PROMULGA a seguinte Lei:</p>
+      <p class="art"><span class="art-num">Art. 1º</span> Fica criado, no âmbito do Município de Capela do Alto, o Programa Municipal Patrulha Maria da Penha, com a finalidade de atuar na proteção, prevenção e acompanhamento de mulheres em situação de violência doméstica e familiar, nos termos da Lei Federal nº 11.340, de 7 de agosto de 2006 (Lei Maria da Penha), e desta Lei.</p>
+      <p class="art"><strong>Parágrafo único.</strong> São objetivos principais da Patrulha Maria da Penha:</p>
+      <p class="art" style="padding-left:24px;">I — Fiscalizar o cumprimento das medidas protetivas de urgência;<br>
+      II — Atuar na prevenção, monitoramento e proteção das vítimas de violência doméstica;<br>
+      III — Integrar ações com a rede local de atendimento e assistência social;<br>
+      IV — Garantir atendimento humanizado, célere e eficiente às mulheres em situação de risco.</p>
+      <p class="art"><span class="art-num">Art. 2º</span> São diretrizes da Patrulha Maria da Penha:</p>
+      <p class="art" style="padding-left:24px;">I — Orientar e capacitar a Guarda Civil Municipal quanto à atuação no contexto da Lei Maria da Penha;<br>
+      II — Capacitar os agentes públicos em abordagem sensível, qualificada e sem revitimização;<br>
+      III — Auxiliar o Poder Executivo no controle e acompanhamento dos casos de violência doméstica no município;<br>
+      IV — Garantir atendimento com respeito à dignidade da pessoa humana e à não discriminação;<br>
+      V — Promover a integração entre os serviços municipais de segurança, saúde, assistência social e o Poder Judiciário;<br>
+      VI — Disponibilizar o dispositivo "Botão do Pânico" ou ferramenta equivalente de tecnologia como resposta rápida às mulheres em situação de risco cadastradas no programa.</p>
+      <p class="art"><span class="art-num">Art. 3º</span> Fica instituída a obrigatoriedade da divulgação permanente das ações e dos canais de atendimento da Patrulha Maria da Penha, como instrumento contínuo de prevenção e enfrentamento à violência contra a mulher.</p>
+      <p class="art"><span class="art-num">Art. 4º</span> A divulgação deverá ocorrer durante todo o ano, de forma contínua, por meio de: publicações em redes sociais e canais oficiais; exibição de material informativo em órgãos públicos municipais, escolas, unidades de saúde (UBS/ESF), CRAS, CREAS e demais equipamentos públicos; parcerias com a iniciativa privada; eventos, palestras e campanhas de conscientização; e campanhas educativas nas escolas.</p>
+      <p class="art"><span class="art-num">Art. 5º</span> O material de divulgação impresso ou digital deverá conter informações sobre os objetivos do Programa, telefones e canais diretos de contato (GCM 190, Polícia Militar 190, e Central de Atendimento à Mulher — Ligue 180), e orientações sobre os direitos das mulheres e a rede de suporte disponível.</p>
+      <p class="art"><span class="art-num">Art. 6º</span> O Poder Executivo Municipal poderá firmar convênios, parcerias ou termos de cooperação com instituições públicas estaduais e federais, bem como entidades privadas sem fins lucrativos.</p>
+      <p class="art"><span class="art-num">Art. 7º</span> As despesas decorrentes da execução desta Lei correrão por conta das dotações orçamentárias próprias, suplementadas se necessário.</p>
+      <p class="art"><span class="art-num">Art. 8º</span> Esta Lei entra em vigor na data de sua publicação.</p>
+      <p style="margin-top:18px;font-style:italic;color:#888;">Sala das Sessões Vereador João Antonio Nunes.<br>FELIPE SIMÕES DE ALMEIDA — Vereador Presidente da Câmara Municipal</p>
+    `,
+    lsHTML: `
+      <h3>📋 O que é este documento?</h3>
+      <p>Esta é a <span class="hl">Lei 2.503/2026</span> de Capela do Alto. Ela cria o <strong>Programa Municipal Patrulha Maria da Penha</strong>, que protege mulheres que sofrem violência doméstica e familiar na cidade.</p>
+
+      <h3>🛡️ O que a Patrulha Maria da Penha faz?</h3>
+      <div class="box"><ul>
+        <li>Fiscaliza se as medidas protetivas de urgência estão sendo cumpridas</li>
+        <li>Monitora e protege mulheres vítimas de violência doméstica</li>
+        <li>Trabalha junto com assistência social, saúde e justiça</li>
+        <li>Oferece atendimento rápido e humanizado</li>
+      </ul></div>
+
+      <h3>📱 Ferramentas de proteção</h3>
+      <p>A lei prevê o <strong>"Botão do Pânico"</strong> — uma ferramenta tecnológica que permite à mulher em risco pedir ajuda rápida. Além disso, a Guarda Civil Municipal é treinada para agir de forma sensível e sem revitimizar a pessoa.</p>
+
+      <h3>📢 Divulgação obrigatória</h3>
+      <p>A cidade é obrigada a divulgar o programa <strong>o ano inteiro</strong>, em escolas, postos de saúde, CRAS, CREAS e redes sociais. O material deve trazer os telefones de emergência:</p>
+      <div class="box"><ul>
+        <li>Guarda Civil Municipal — 190</li>
+        <li>Polícia Militar — 190</li>
+        <li>Central de Atendimento à Mulher — Ligue 180</li>
+      </ul></div>
+
+      <h3>📍 Como pedir ajuda?</h3>
+      <p>Se você ou alguém que você conhece está em situação de violência doméstica, <strong>ligue 180</strong> (Central de Atendimento à Mulher) ou procure a Guarda Civil Municipal de Capela do Alto. A lei garante atendimento com <strong>respeito, sem discriminação e sem julgamento</strong>.</p>
+    `,
+    vnChapters: [
+      {
+        title:"O que é a Patrulha Maria da Penha?",
+        text:"Programa que protege mulheres em situação de violência doméstica em Capela do Alto.",
+        narration:"Esta é a Lei número 2.503, de 2026, de Capela do Alto. Ela cria o Programa Municipal Patrulha Maria da Penha. Esse programa foi criado para proteger, prevenir e acompanhar mulheres que sofrem violência doméstica e familiar, seguindo a Lei Federal Maria da Penha, a lei número 11.340 de 2006.",
+        dur:30, icon:"📋", bg:"ch-1"
+      },
+      {
+        title:"O que a Patrulha faz?",
+        text:"Fiscaliza medidas protetivas, monitora vítimas e oferece o Botão do Pânico.",
+        narration:"A Patrulha Maria da Penha tem quatro grandes objetivos: fiscalizar o cumprimento das medidas protetivas de urgência, atuar na prevenção e proteção das vítimas, integrar ações com a rede de assistência social, e garantir atendimento humanizado e rápido. A lei também prevê o Botão do Pânico, uma ferramenta tecnológica para que mulheres em risco peçam ajuda de forma rápida.",
+        dur:35, icon:"🛡️", bg:"ch-2"
+      },
+      {
+        title:"Divulgação e treinamento",
+        text:"Guarda Civil treinada, divulgação obrigatória o ano inteiro em escolas e postos de saúde.",
+        narration:"A lei determina que a Guarda Civil Municipal seja capacitada para atuar com abordagem sensível, qualificada e sem revitimização. Além disso, a divulgação do programa é obrigatória e deve acontecer durante todo o ano, em redes sociais, escolas, postos de saúde, CRAS, CREAS e outros equipamentos públicos. O material deve conter os telefones de emergência e orientações sobre os direitos das mulheres.",
+        dur:35, icon:"📢", bg:"ch-3"
+      },
+      {
+        title:"Como pedir ajuda?",
+        text:"Ligue 180 (Central da Mulher) ou procure a Guarda Civil Municipal.",
+        narration:"Se você precisa de ajuda, ligue 180, que é a Central de Atendimento à Mulher, um serviço gratuito e disponível 24 horas. Você também pode procurar a Guarda Civil Municipal pelo 190, ou ir até o CRAS ou CREAS da sua cidade. A lei garante atendimento com respeito à dignidade da pessoa humana e à não discriminação. O município pode também firmar parcerias com órgãos estaduais, federais e entidades sem fins lucrativos para fortalecer o programa.",
+        dur:38, icon:"📍", bg:"ch-4"
+      }
+    ],
+    questions: [
+      { q:"Qual é o objetivo principal da Lei 2.503/2026?", opts:["Regular o comércio local","Criar a Patrulha Maria da Penha para proteger mulheres","Instituir um comitê de educação"], correct:1 },
+      { q:"O que é o 'Botão do Pânico' previsto na lei?", opts:["Um alarme nas escolas","Uma ferramenta tecnológica para mulheres em risco pedirem ajuda","Um sistema de segurança de trânsito"], correct:1 },
+      { q:"Qual telefone é a Central de Atendimento à Mulher?", opts:["190","180","192"], correct:1 },
+      { q:"A divulgação do programa deve ocorrer em que período?", opts:["Apenas em março","Apenas no Dia da Mulher","Durante todo o ano, de forma contínua"], correct:2 },
+      { q:"Quem deve ser capacitado para atuar no programa?", opts:["Professores","Guarda Civil Municipal e agentes públicos","Médicos"], correct:1 },
+      { q:"Em quais locais o material de divulgação deve ser exposto?", opts:["Apenas na prefeitura","Escolas, postos de saúde, CRAS, CREAS e redes sociais","Apenas na internet"], correct:1 }
+    ]
+  },
+
+  // ─── D3: Lei Complementar 121/2025 — Finanças / Parcelamento ───
+  {
+    id: "D3",
+    label: "LC 121/2025",
+    tema: "Finanças",
+    originalTitle: "LEI COMPLEMENTAR Nº 121, DE 15 DE MAIO DE 2025",
+    originalHTML: `
+      <p>"Estabelece critérios excepcionais para parcelamento e/ou quitação de débitos de natureza tributária ou não tributária que menciona e dá outras providências."</p>
+      <p class="art"><span class="art-num">HENRIQUE DANIEL LEME</span>, Prefeito do Município de Capela do Alto, Estado de São Paulo, no uso das atribuições que lhes são conferidas por lei, FAZ SABER que a Câmara Municipal aprovou e ele sanciona e promulga a seguinte Lei Complementar:</p>
+      <p class="art"><span class="art-num">Art. 1º</span> A presente lei tem por objetivo o recebimento de dívidas pela Municipalidade de Capela do Alto, abrangendo os débitos vencidos, de natureza tributária e não tributária, já constituídos ou em vias de o serem, executados ou a executar, protestados ou não, inclusive os inscritos em Dívida Ativa, bem como os que tenham sido objeto de parcelamento anterior, não integralmente quitados, relativos a fatos geradores até 31 de dezembro de 2024, poderão ser parcelados na forma prevista na presente lei.</p>
+      <p class="art">§ 1° - O sujeito passivo, contribuinte ou responsável tributário poderá requerer dentro do exercício financeiro de 2025, a celebração para acordo de parcelamento de forma individualizada para cada débito municipal distinto.</p>
+      <p class="art">§ 2° - A presente lei permite quitação dos débitos com aplicação integral de correção monetária e redução de multa e juros de mora na forma e condições que estabelece.</p>
+      <p class="art"><span class="art-num">Art. 2º</span> Os débitos elegíveis aos benefícios descritos na presente lei manterão a natureza jurídica de sua origem, com os descontos nas penalidades, prazos e parcelamentos seguintes:</p>
+      <p class="art" style="padding-left:24px;">I — Desconto de 90% na multa e 80% nos juros de mora, para pagamento em cota única ou em 04 parcelas.<br>
+      II — Desconto de 70% na multa e 60% nos juros de mora, para pagamento em 05 a 24 parcelas.<br>
+      III — Desconto de 50% na multa e 40% nos juros de mora, para pagamento em 24 a 36 parcelas.</p>
+      <p class="art">§ 1° - Acima de 36 até 48 parcelas, sem desconto.</p>
+      <p class="art"><span class="art-num">Art. 3º</span> Não será permitida parcela com valor inferior a R$ 150,00 para pessoas físicas. No caso de pessoa jurídica, o valor da parcela não poderá ser inferior a R$ 250,00.</p>
+      <p class="art"><span class="art-num">Art. 7º</span> Constituem motivos para a rescisão do acordo de parcelamento: inobservância das exigências da lei; inadimplência por 02 parcelas consecutivas ou 03 alternadas não por mais de 30 dias corridos; decretação de falência ou extinção da pessoa jurídica; cisão da pessoa jurídica sem assumir as obrigações.</p>
+      <p class="art"><span class="art-num">Art. 8º</span> As parcelas em atraso, quando pagas antes da extinção do parcelamento, serão acrescidas de multa de 10% e juros de mora na proporção de 1% ao mês, calculados pro rata die.</p>
+      <p class="art"><span class="art-num">Art. 10.</span> Para ter direito ao pagamento dos débitos nos termos desta Lei, os interessados deverão requerer no Departamento de Tributos.</p>
+      <p class="art"><span class="art-num">Art. 19.</span> A presente lei complementar entra em vigor na data de sua publicação, findando sua eficácia no dia 30 de novembro de 2025.</p>
+      <p style="margin-top:18px;font-style:italic;color:#888;">Prefeitura Municipal de Capela do Alto, em 15 de maio de 2025.<br>HENRIQUE DANIEL LEME — Prefeito Municipal</p>
+    `,
+    lsHTML: `
+      <h3>📋 O que é este documento?</h3>
+      <p>Esta é a <span class="hl">Lei Complementar 121/2025</span> de Capela do Alto. Ela dá uma <strong>chance especial</strong> para quem tem dívidas com a prefeitura pagar com <strong>desconto na multa e nos juros</strong>.</p>
+
+      <h3>💰 Quais dívidas podem ser parceladas?</h3>
+      <p>Qualquer dívida com a prefeitura — impostos (IPTU, ISS, taxas) ou não tributária — que tenha vencido <strong>até 31 de dezembro de 2024</strong>. Inclui dívidas já na Dívida Ativa, protestadas e até parcelamentos anteriores não pagos.</p>
+
+      <h3>📊 Quais são os descontos?</h3>
+      <div class="box"><ul>
+        <li><strong>Pagamento à vista ou em até 4 parcelas:</strong> 90% de desconto na multa e 80% nos juros</li>
+        <li><strong>De 5 a 24 parcelas:</strong> 70% de desconto na multa e 60% nos juros</li>
+        <li><strong>De 24 a 36 parcelas:</strong> 50% de desconto na multa e 40% nos juros</li>
+        <li><strong>De 36 a 48 parcelas:</strong> sem desconto, mas ainda pode parcelar</li>
+      </ul></div>
+
+      <h3>⚠️ Regras importantes</h3>
+      <div class="box"><ul>
+        <li>Parcela mínima: R$ 150,00 (pessoa física) ou R$ 250,00 (pessoa jurídica)</li>
+        <li>Se atrasar 2 parcelas seguidas ou 3 alternadas, perde o benefício</li>
+        <li>Parcela paga em atraso tem multa de 10% + juros de 1% ao mês</li>
+        <li>Pedido deve ser feito no Departamento de Tributos</li>
+      </ul></div>
+
+      <h3>⏰ Até quando posso aderir?</h3>
+      <p>A lei teve validade até <strong>30 de novembro de 2025</strong>. O pedido deveria ser feito dentro do exercício financeiro de 2025 no <strong>Departamento de Tributos</strong> da Prefeitura de Capela do Alto.</p>
+    `,
+    vnChapters: [
+      {
+        title:"O que esta lei oferece?",
+        text:"Chance de pagar dívidas com a prefeitura com desconto na multa e nos juros.",
+        narration:"Esta é a Lei Complementar número 121, de 2025, do município de Capela do Alto. Ela oferece uma oportunidade especial para quem tem dívidas com a prefeitura. A lei permite parcelar ou quitar débitos tributários e não tributários com descontos na multa e nos juros de mora. Os débitos elegíveis são aqueles vencidos até 31 de dezembro de 2024.",
+        dur:30, icon:"📋", bg:"ch-1"
+      },
+      {
+        title:"Quais são os descontos?",
+        text:"Até 90% na multa e 80% nos juros para pagamento à vista ou em 4 parcelas.",
+        narration:"Os descontos variam conforme o número de parcelas. Pagando à vista ou em até 4 parcelas, o desconto é de 90% na multa e 80% nos juros. De 5 a 24 parcelas, são 70% na multa e 60% nos juros. De 24 a 36 parcelas, são 50% na multa e 40% nos juros. Acima de 36 parcelas até 48, não há desconto, mas ainda é possível parcelar.",
+        dur:35, icon:"💰", bg:"ch-2"
+      },
+      {
+        title:"Cuidados e regras",
+        text:"Parcela mínima de R$ 150. Se atrasar, pode perder o benefício.",
+        narration:"Existem algumas regras importantes. A parcela não pode ser menor que 150 reais para pessoas físicas e 250 reais para pessoas jurídicas. Se o contribuinte atrasar 2 parcelas seguidas ou 3 alternadas por mais de 30 dias, perde todos os benefícios e a dívida volta ao valor original. Parcelas pagas com atraso têm multa de 10% mais juros de 1% ao mês.",
+        dur:33, icon:"⚠️", bg:"ch-3"
+      },
+      {
+        title:"Como aderir?",
+        text:"Procure o Departamento de Tributos da Prefeitura. Lei válida até novembro de 2025.",
+        narration:"Para aderir ao parcelamento, o contribuinte deve procurar o Departamento de Tributos da Prefeitura Municipal de Capela do Alto. A adesão implica na aceitação plena de todas as condições da lei e na confissão da dívida. A lei entrou em vigor na data de sua publicação, em 15 de maio de 2025, com validade até 30 de novembro de 2025.",
+        dur:30, icon:"📍", bg:"ch-4"
+      }
+    ],
+    questions: [
+      { q:"Qual é o objetivo principal da LC 121/2025?", opts:["Criar um comitê de educação","Permitir parcelamento de dívidas com desconto","Proteger mulheres vítimas de violência"], correct:1 },
+      { q:"Qual o maior desconto na multa para quem paga à vista?", opts:["50%","70%","90%"], correct:2 },
+      { q:"Qual o valor mínimo da parcela para pessoa física?", opts:["R$ 100,00","R$ 150,00","R$ 250,00"], correct:1 },
+      { q:"O que acontece se o contribuinte atrasar 2 parcelas seguidas?", opts:["Recebe um aviso","Perde o benefício e a dívida volta ao valor original","Nada acontece"], correct:1 },
+      { q:"Até que data os fatos geradores devem ter ocorrido?", opts:["31 de dezembro de 2023","31 de dezembro de 2024","31 de dezembro de 2025"], correct:1 },
+      { q:"Onde o contribuinte deve fazer o pedido de parcelamento?", opts:["Na Câmara Municipal","No Departamento de Tributos","No cartório"], correct:1 }
+    ]
+  }
+];
+
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+let curDoc = 0;
+let startTime = Date.now();
+
+// ═══════════════════════════════════════
+// RENDER FUNCTIONS
+// ═══════════════════════════════════════
+
+function renderOriginal() {
+  const d = DOCS[curDoc];
+  document.getElementById('doc-original-content').innerHTML =
+    `<div class="doc-title">${d.originalTitle}</div>${d.originalHTML}`;
+}
+
+function renderLS() {
+  document.getElementById('doc-ls-content').innerHTML = DOCS[curDoc].lsHTML;
+}
+
+function renderVN() {
+  const d = DOCS[curDoc];
+  // Reset player
+  stopSpeech();
+  if(vnInterval) clearInterval(vnInterval);
+  vnPlaying = false; vnTime = 0; vnCurCh = 0;
+  document.getElementById('vn-play').textContent = '▶';
+  const pc = document.querySelector('.play-circle');
+  if(pc) pc.textContent = '▶';
+
+  // Build chapters list
+  const container = document.getElementById('chapters-list');
+  let html = '<h3>📌 Capítulos do vídeo</h3>';
+  let cumTime = 0;
+  d.vnChapters.forEach((ch, i) => {
+    const fm = (t) => { const m=Math.floor(t/60),s=Math.floor(t%60); return m+':'+s.toString().padStart(2,'0'); };
+    html += `<div class="ch-item${i===0?' active':''}" onclick="vnJump(${i})">
+      <div class="ch-icon ${ch.bg}">${ch.icon}</div>
+      <div class="ch-info"><div class="ch-title">${i+1}. ${ch.title}</div><div class="ch-dur">${ch.dur} segundos</div></div>
+      <div class="ch-time">${fm(cumTime)}</div>
+    </div>`;
+    cumTime += ch.dur;
+  });
+  container.innerHTML = html;
+
+  // Update video screen
+  document.getElementById('vid-title').textContent = d.vnChapters[0].title;
+  document.getElementById('vid-sub').textContent = d.vnChapters[0].text;
+  vnUpdate();
+}
+
+function renderQuiz() {
+  const d = DOCS[curDoc];
+  const grid = document.getElementById('quiz-grid');
+  let html = '';
+  d.questions.forEach((q, i) => {
+    html += `<div class="question">
+      <div class="q-num">Questão ${i+1} de 6</div>
+      <div class="q-text">${q.q}</div>`;
+    q.opts.forEach((opt, j) => {
+      html += `<div class="option" onclick="pick(this)"${j===q.correct?' data-correct':''}><div class="radio"></div> ${opt}</div>`;
+    });
+    html += '</div>';
+  });
+  grid.innerHTML = html;
+  // Reset quiz state
+  document.getElementById('perf-panel').style.display = 'none';
+  startTime = Date.now();
+}
+
+function renderAll() {
+  renderOriginal();
+  renderLS();
+  renderVN();
+  renderQuiz();
+}
+
+// ═══════════════════════════════════════
+// DOCUMENT SWITCHING
+// ═══════════════════════════════════════
+
+function switchDoc(idx) {
+  curDoc = idx;
+  document.querySelectorAll('.doc-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
+  renderAll();
+}
+
+// ═══════════════════════════════════════
+// TAB SWITCHING
+// ═══════════════════════════════════════
+
+function showTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  const labels = {original:0, ls:1, vn:2};
+  document.querySelectorAll('.tab')[labels[name]].classList.add('active');
+}
+
+// ═══════════════════════════════════════
+// QUIZ INTERACTION
+// ═══════════════════════════════════════
+
+function pick(el) {
+  const q = el.closest('.question');
+  q.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function checkQuiz() {
+  let score = 0;
+  document.querySelectorAll('.question').forEach(q => {
+    const sel = q.querySelector('.option.selected');
+    const correct = q.querySelector('.option[data-correct]');
+    if (sel) {
+      if (sel === correct) { sel.classList.add('correct'); score++; }
+      else { sel.classList.add('wrong'); correct.classList.add('correct'); }
+    } else { correct.classList.add('correct'); }
+  });
+  const elapsed = Math.round((Date.now() - startTime) / 1000);
+  const m = Math.floor(elapsed/60), s = elapsed%60;
+  document.getElementById('perf-time').textContent = m.toString().padStart(2,'0')+':'+s.toString().padStart(2,'0');
+  document.getElementById('perf-score').textContent = score + ' de 6';
+  const activeTab = document.querySelector('.tab.active');
+  const fmts = ['Original','Ling. Simples','Vídeo Nav.'];
+  const idx = [...document.querySelectorAll('.tab')].indexOf(activeTab);
+  document.getElementById('perf-fmt').textContent = fmts[idx] || 'Original';
+  document.getElementById('perf-panel').style.display = 'inline-flex';
+}
+
+// ═══════════════════════════════════════
+// TEXT-TO-SPEECH (narração pt-BR)
+// ═══════════════════════════════════════
+
+const synth = window.speechSynthesis;
+let ptVoice = null;
+
+function loadVoice() {
+  const voices = synth.getVoices();
+  ptVoice = voices.find(v => v.lang === 'pt-BR')
+         || voices.find(v => v.lang.startsWith('pt'))
+         || voices[0];
+}
+synth.onvoiceschanged = loadVoice;
+loadVoice();
+
+let currentUtterance = null;
+
+function speakChapter(idx) {
+  synth.cancel();
+  const d = DOCS[curDoc];
+  const ch = d.vnChapters[idx];
+  const intro = `Capítulo ${idx+1}: ${ch.title}. `;
+  const utter = new SpeechSynthesisUtterance(intro + ch.narration);
+  utter.lang = 'pt-BR';
+  utter.rate = 0.95;
+  utter.pitch = 1.0;
+  if (ptVoice) utter.voice = ptVoice;
+
+  utter.onend = () => {
+    if (!vnPlaying) return;
+    const next = idx + 1;
+    if (next < d.vnChapters.length) {
+      vnCurCh = next;
+      let t = 0; for(let i=0;i<next;i++) t+=d.vnChapters[i].dur;
+      vnTime = t;
+      vnUpdate();
+      speakChapter(next);
+    } else {
+      vnPlaying = false;
+      vnTime = getCurTotalDur();
+      document.getElementById('vn-play').textContent = '▶';
+      const pc = document.querySelector('.play-circle');
+      if(pc) pc.textContent = '▶';
+      clearInterval(vnInterval);
+      vnUpdate();
+    }
+  };
+  currentUtterance = utter;
+  if (vnMuted) return;
+  const badge = document.getElementById('narr-badge');
+  if(badge) badge.classList.add('active');
+  synth.speak(utter);
+}
+
+function stopSpeech() {
+  synth.cancel();
+  currentUtterance = null;
+  const badge = document.getElementById('narr-badge');
+  if(badge) badge.classList.remove('active');
+}
+
+let vnMuted = false;
+function toggleMute() {
+  vnMuted = !vnMuted;
+  document.getElementById('vol-btn').textContent = vnMuted ? '🔇' : '🔊';
+  if (vnMuted) { synth.cancel(); }
+  else if (vnPlaying) { speakChapter(vnCurCh); }
+}
+
+// ═══════════════════════════════════════
+// VIDEO PLAYER
+// ═══════════════════════════════════════
+
+let vnTime=0, vnPlaying=false, vnInterval=null, vnCurCh=0;
+
+function getCurTotalDur() {
+  return DOCS[curDoc].vnChapters.reduce((s,c)=>s+c.dur,0);
+}
+
+function vnToggle() {
+  vnPlaying = !vnPlaying;
+  document.getElementById('vn-play').textContent = vnPlaying ? '⏸' : '▶';
+  const pc = document.querySelector('.play-circle');
+  if(pc) pc.textContent = vnPlaying ? '⏸' : '▶';
+  if (vnPlaying) {
+    speakChapter(vnCurCh);
+    vnInterval = setInterval(()=>{
+      const td = getCurTotalDur();
+      vnTime += 0.5;
+      if(vnTime>=td){ vnTime=td; clearInterval(vnInterval); }
+      const chs = DOCS[curDoc].vnChapters;
+      let cum=0;
+      for(let i=0;i<chs.length;i++){if(vnTime>=cum)vnCurCh=i;cum+=chs[i].dur;}
+      vnUpdate();
+    },500);
+  } else {
+    clearInterval(vnInterval);
+    stopSpeech();
+  }
+}
+
+function vnJump(idx) {
+  stopSpeech();
+  if(vnInterval) clearInterval(vnInterval);
+  vnPlaying = false;
+  const chs = DOCS[curDoc].vnChapters;
+  let t=0; for(let i=0;i<idx;i++) t+=chs[i].dur;
+  vnTime=t; vnCurCh=idx; vnUpdate();
+  vnToggle();
+}
+
+function vnSeek(e) {
+  const rect = e.currentTarget.getBoundingClientRect();
+  const td = getCurTotalDur();
+  vnTime = ((e.clientX-rect.left)/rect.width)*td;
+  const chs = DOCS[curDoc].vnChapters;
+  let cum=0; for(let i=0;i<chs.length;i++){if(vnTime>=cum)vnCurCh=i;cum+=chs[i].dur;}
+  vnUpdate();
+  if(vnPlaying) { stopSpeech(); speakChapter(vnCurCh); }
+}
+
+function vnUpdate() {
+  const chs = DOCS[curDoc].vnChapters;
+  const ch = chs[vnCurCh];
+  const td = getCurTotalDur();
+  document.getElementById('vid-title').textContent = ch.title;
+  document.getElementById('vid-sub').textContent = ch.text;
+  document.getElementById('vn-progress').style.width = (Math.min(vnTime,td)/td*100)+'%';
+  const fm = (t)=>{const m=Math.floor(t/60),s=Math.floor(t%60);return m+':'+s.toString().padStart(2,'0');};
+  document.getElementById('vn-time').textContent = fm(Math.min(vnTime,td))+' / '+fm(td);
+  document.querySelectorAll('.ch-item').forEach((el,i)=>el.classList.toggle('active',i===vnCurCh));
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+renderAll();
+</script>
+</body>
+</html>
